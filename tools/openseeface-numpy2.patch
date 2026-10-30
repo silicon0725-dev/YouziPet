@@ -1,0 +1,29 @@
+--- a/tracker.py	(upstream: emilianavt/OpenSeeFace master)
++++ b/tracker.py	(YuzuPet patched)
+@@ -768,11 +768,14 @@
+
+         success = False
+         if face_info.rotation is not None:
+-            success, face_info.rotation, face_info.translation = cv2.solvePnP(face_info.contour, image_pts, self.camera, self.dist_coeffs, useExtrinsicGuess=True, rvec=np.transpose(face_info.rotation), tvec=np.transpose(face_info.translation), flags=cv2.SOLVEPNP_ITERATIVE)
++            success, rot, trans = cv2.solvePnP(face_info.contour, image_pts, self.camera, self.dist_coeffs, useExtrinsicGuess=True, rvec=np.transpose(face_info.rotation), tvec=np.transpose(face_info.translation), flags=cv2.SOLVEPNP_ITERATIVE)
+         else:
+             rvec = np.array([0, 0, 0], np.float32)
+             tvec = np.array([0, 0, 0], np.float32)
+-            success, face_info.rotation, face_info.translation = cv2.solvePnP(face_info.contour, image_pts, self.camera, self.dist_coeffs, useExtrinsicGuess=True, rvec=rvec, tvec=tvec, flags=cv2.SOLVEPNP_ITERATIVE)
++            success, rot, trans = cv2.solvePnP(face_info.contour, image_pts, self.camera, self.dist_coeffs, useExtrinsicGuess=True, rvec=rvec, tvec=tvec, flags=cv2.SOLVEPNP_ITERATIVE)
++        # numpy2/opencv5 compat: solvePnP returns (1,3) shapes; old code expects (3,)
++        face_info.rotation = np.asarray(rot, np.float32).flatten()
++        face_info.translation = np.asarray(trans, np.float32).flatten()
+
+         rotation = face_info.rotation
+         translation = face_info.translation
+@@ -831,7 +834,8 @@
+                 pt = (pts_3d[42] * d1 + pts_3d[45] * d2) / d
+             if i < 2:
+                 reference = rmat.dot(pt)
+-                reference = reference + face_info.translation
++                # numpy2/opencv5 compat: translation now comes back as (1,3), flatten
++                reference = (reference + face_info.translation).flatten()
+                 reference = self.camera.dot(reference)
+                 depth = reference[2]
+                 pt_3d = np.array([lms[66+i][0] * depth, lms[66+i][1] * depth, depth], np.float32)

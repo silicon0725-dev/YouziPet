@@ -1,0 +1,26 @@
+# Godot 4 generated files
+.godot/
+*.translation
+
+# .NET / C# build output
+.mono/
+data_*/
+obj/
+bin/
+*.user
+
+# export artifacts (the 119MB exe exceeds GitHub's 100MB file limit; rebuild
+# locally with: Godot_v4.7.2-stable_mono_win64.exe --headless --export-release "Windows Desktop")
+dist/
+
+# sidecar runtime logs
+tools/OpenSeeFace/osf.log
+*.log
+
+# local security-tool audit data
+.mimosa/
+tools/OpenSeeFace/.mimosa/
+
+# vendored OpenSeeFace (BSD-2, ~40MB incl. models) is fetched at setup time
+# from upstream + tools/openseeface-numpy2.patch — see README (face capture)
+tools/OpenSeeFace/
